@@ -46,3 +46,4 @@ for message in folder_messages:
         is_csv = search(pattern,str(attachment))
         if is_csv:
             attachment.save(location='.\\attachments\\')
+

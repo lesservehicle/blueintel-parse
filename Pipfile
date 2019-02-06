@@ -6,9 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-0365 = '>1.0.0'
 pyad = '>0.5.0'
 o365 = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"
