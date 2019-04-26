@@ -1,4 +1,4 @@
-#blueintel-parse.py
+# blueintel-parse.py
 
 Uses the O365 module at https://o365.github.io/python-o365/latest/html/index.html
 
@@ -22,6 +22,6 @@ user_name = <your username>
 password = <your password>
 ```
 
-##TO DO:
+## TO DO:
 - Update the O365 portion of the script to stop using the deprecated 'token_path' parameter.
 - Add a function to include a mail merge.
