@@ -46,14 +46,13 @@ from ldap3.core.exceptions import LDAPCursorError
 # Functions in order of operations
 
 def pull(client_id, client_secret, token_file, mailfolder, root):
-
     print("[+] Pulling credparser emails from acopeland@celgene.com\credparser")
 
     root = os.path.join('.', root)
 
     my_protocol = MSGraphProtocol()
     my_credentials = (client_id, client_secret)
-    my_scopes=['basic', 'mailbox', 'mailbox_shared', 'users', 'message_all', 'message_all_shared']
+    my_scopes = ['basic', 'mailbox', 'mailbox_shared', 'users', 'message_all', 'message_all_shared']
     my_account = Account(credentials=my_credentials, protocol=my_protocol)
 
     if not my_account.connection.check_token_file():
@@ -71,7 +70,7 @@ def pull(client_id, client_secret, token_file, mailfolder, root):
         attachments = message.attachments
         for attachment in attachments:
             pattern = '.csv$'
-            is_csv = search(pattern,str(attachment))
+            is_csv = search(pattern, str(attachment))
             if is_csv:
                 if not os.path.exists(root):
                     os.makedirs(root)
@@ -79,7 +78,6 @@ def pull(client_id, client_secret, token_file, mailfolder, root):
 
 
 def parse(parse_file, root, pattern):
-
     print("[+] Reformating the output and combining the CSV files")
 
     filenames = []
@@ -122,8 +120,8 @@ def parse(parse_file, root, pattern):
                     row[2] = "*" * masked + slimstr + "*" * masked
                     csvwriter.writerow(row)
 
-def dedup(parse_file, dedup_file):
 
+def dedup(parse_file, dedup_file):
     print("[+] Deduplicating entries in the output CSV.")
 
     lines_seen = set()  # holds lines already seen
@@ -136,13 +134,14 @@ def dedup(parse_file, dedup_file):
             lines_seen.add(line_list[1])
     outfile.close()
 
-def verify(dedup_file, verify_file, server_name, domain_name, user_name, password):
 
-    print ("[+] Verifying entries on the deduplicated CSV.")
+def verify(dedup_file, verify_file, server_name, domain_name, user_name, password):
+    print("[+] Verifying entries on the deduplicated CSV.")
 
     # Setting up LDAP session to Active Directory
     server = Server(server_name, get_info=ALL)
-    conn = Connection(server, user='{}\\{}'.format(domain_name, user_name), password=password, authentication=NTLM, auto_bind=True)
+    conn = Connection(server, user='{}\\{}'.format(domain_name, user_name), password=password, authentication=NTLM,
+                      auto_bind=True)
 
     # Establish a csvwriter object
     fields = ['Source', 'Username', 'Masked Passord', 'Destination', 'CSV File', 'Full Name', 'pwdLastSet']
@@ -161,7 +160,8 @@ def verify(dedup_file, verify_file, server_name, domain_name, user_name, passwor
 
         # Searching AD for the user in the current CSV file's line
         search_filter = '(&(objectclass=person)(sAMAccountName=' + search_account + '))'
-        conn.search('DC=celgene,DC=com'.format(domain_name), search_filter=search_filter, attributes=[ALL_ATTRIBUTES, ALL_OPERATIONAL_ATTRIBUTES])
+        conn.search('DC=celgene,DC=com'.format(domain_name), search_filter=search_filter,
+                    attributes=[ALL_ATTRIBUTES, ALL_OPERATIONAL_ATTRIBUTES])
 
         for user in conn.entries:
             try:
@@ -176,8 +176,8 @@ def verify(dedup_file, verify_file, server_name, domain_name, user_name, passwor
             except LDAPCursorError:
                 continue
 
-def cleanup(parse_file, root, dedup_file):
 
+def cleanup(parse_file, root, dedup_file):
     print("[+] Cleaning up temporary files and directories.")
 
     try:
@@ -185,11 +185,10 @@ def cleanup(parse_file, root, dedup_file):
         os.remove(dedup_file)
         shutil.rmtree(root)
     except OSError as e:
-        print("[-] %s - %s." % (e.filename,e.strerror))
+        print("[-] %s - %s." % (e.filename, e.strerror))
 
 
 if __name__ == '__main__':
-
     # Reading secrets in from configuration file
     parser = RawConfigParser()
     parser.read('credentials.ini')
