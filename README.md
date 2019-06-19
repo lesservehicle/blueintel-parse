@@ -2,7 +2,7 @@
 
 Uses the O365 module at https://o365.github.io/python-o365/latest/html/index.html
 
-Logs into O365 as the specified user in `credentials.ini`, locates messages from blueintel credparser in the specified folder, and downloads the messages. 
+Logs into O365 as the specified user in `credentials.ini`, locates messages from blueintel credparser (https://github.com/trbpnd/bimeta) in the specified folder, and downloads the messages. 
 
 Then it separates the CSV file attachments from the message, and stores them in a temporary directory for processing. 
 

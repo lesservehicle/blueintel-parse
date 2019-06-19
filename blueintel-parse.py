@@ -29,7 +29,7 @@ TO DO:
 
 # Many Imports
 
-from O365 import MSGraphProtocol, Account
+from O365 import MSGraphProtocol, Account, FileSystemTokenBackend, Message
 from pathlib import Path
 from configparser import RawConfigParser
 from re import search
@@ -176,18 +176,18 @@ def cleanup(parse_file, root, dedup_file):
     except OSError as e:
         print("[-] %s - %s." % (e.filename, e.strerror))
 
-def sendmail(account, verify_file):
+def sendmail(account, verify_file, recipient, sender):
 
-    print("[+] Sending email with attachment to ITGOM Security.")
+    print("[+] Sending email with attachment.")
 
     today = datetime.now().strftime('%Y-%m-%d')
     mailbox = account.mailbox()
     m = mailbox.new_message()
 
-    m.to.add('acopeland@celgene.com')
-    #m.to.add('DLINITGOMSecurity@celgene.com')
+    m.to.add(recipient)
     m.subject = 'Credparser Notification: ' + today
-    m.sender.address = 'threatintel@celgene.com'
+    m.sender.address = sender
+
     body = """
             <html>
             <body>
@@ -208,16 +208,12 @@ def archive(account, mailfromfolder, mailtofolder):
     print("[+] Moving credparser emails to archive")
 
     mailbox = account.mailbox()
-    pprint(mailbox)
-
-    mail_folder = mailbox.get_folder(folder_name=mailfromfolder)
-    pprint(mail_folder)
-
-    folder_messages = mail_folder.get_messages(download_attachments=False)
+    mailfromfolder = mailbox.get_folder(folder_name=mailfromfolder)
+    folder_messages = mailfromfolder.get_messages(download_attachments=False)
+    mailtofolder = mailbox.get_folder(folder_name=mailtofolder)
 
     for message in folder_messages:
-        pprint(message)
-
+        message.move(mailtofolder)
 
 
 if __name__ == '__main__':
@@ -233,7 +229,8 @@ if __name__ == '__main__':
     scopes = ['basic', 'mailbox', 'mailbox_shared', 'users', 'message_all', 'message_all_shared']
 
     credentials = credentials = (client_id, client_secret)
-    account = Account(credentials)
+    token_backend = FileSystemTokenBackend(token_path='.', token_filename='token.txt')
+    account = Account(credentials, token_backend=token_backend)
 
     # Authenticating to O365
     if not account.is_authenticated:
@@ -245,11 +242,14 @@ if __name__ == '__main__':
     user_name = parser.get('ldap', 'user_name')
     password = parser.get('ldap', 'password')
 
+    # Getting mail addresses
+    recipient = parser.get('mail', 'recipient')
+    sender = parser.get('mail', 'sender')
+
     # Setting up file names and directories
     parse_file = 'credparser.csv'
     dedup_file = 'credparser-dedup.csv'
     verify_file = "credparser-" + datetime.now().strftime('%Y-%m-%d') + ".csv"
-    token_file = Path('./o365_token.txt')
     mailfromfolder = 'credparser'
     mailtofolder = 'credparserarchive'
     root = "./attachments"
@@ -261,5 +261,5 @@ if __name__ == '__main__':
     dedup(parse_file, dedup_file)
     verify(dedup_file, verify_file, server_name, domain_name, user_name, password)
     cleanup(parse_file, root, dedup_file)
-    sendmail(account, verify_file)
+    sendmail(account, verify_file, recipient, sender)
     archive(account, mailfromfolder, mailtofolder)
