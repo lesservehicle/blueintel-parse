@@ -6,22 +6,6 @@ Logs into O365 as the specified user in `credentials.ini`, locates messages from
 
 Then it separates the CSV file attachments from the message, and stores them in a temporary directory for processing. 
 
-The CSV attachments are then combined together into one file, entries are deduplicated, and verified against LDAP for accuracy.
+The CSV attachments are then combined together into one file, entries are deduplicated, and verified against LDAP for accuracy. An email to a sender specified in the ini file is sent with the merged and verified file as an attachment, and all of the generated temporary files are deleted.
 
-Requires a local ./credentials.ini file, structured as follows:
-
-```
-[credentials]
-client_id = <id>
-client_secret = <secret>
-
-[ldap]
-server_name = <your LDAP server>
-domain_name = <your domain>
-user_name = <your username>
-password = <your password>
-```
-
-## TO DO:
-- Update the O365 portion of the script to stop using the deprecated 'token_path' parameter.
-- Add a function to include a mail merge.
+Requires a local ./credentials.ini file, see the included credentials-example.ini.

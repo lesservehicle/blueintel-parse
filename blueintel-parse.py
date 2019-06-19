@@ -8,22 +8,7 @@ downloads the messages. Then it separates the CSV file attachments from the mess
 in a temporary directory for processing. The CSV attachments are combined together into one file,
 then entries are deduplicated, and verified against LDAP for accuracy.
 
-Requires a local ./credentials.ini file, structured as follows:
-
-[credentials]
-client_id = <id>
-client_secret = <secret>
-
-[ldap]
-server_name = <your LDAP server>
-domain_name = <your domain>
-user_name = <your username>
-password = <your password>
-
-
-TO DO:
-- Update the O365 portion of the script to stop using the deprecated 'token_path' parameter.
-- Add a function to include a mail merge.
+Requires a local ./credentials.ini file, see credentials-example.ini.
 
 '''
 
