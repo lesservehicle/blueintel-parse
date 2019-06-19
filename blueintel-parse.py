@@ -242,7 +242,8 @@ if __name__ == '__main__':
     user_name = parser.get('ldap', 'user_name')
     password = parser.get('ldap', 'password')
 
-    # Getting mail addresses
+    # Getting mail address info
+    pattern = parser.get('meta', 'pattern')
     recipient = parser.get('mail', 'recipient')
     sender = parser.get('mail', 'sender')
 
@@ -253,7 +254,6 @@ if __name__ == '__main__':
     mailfromfolder = 'credparser'
     mailtofolder = 'credparserarchive'
     root = "./attachments"
-    pattern = "celgene-*.csv"
 
     # Bulk operations
     pull(account, mailfromfolder, root)
