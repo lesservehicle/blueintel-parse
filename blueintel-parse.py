@@ -166,16 +166,6 @@ def verify(dedup_file, verify_file, server_name, domain_name, user_name, passwor
                 continue
 
 
-def cleanup(parse_file, root, dedup_file):
-    print("[+] Cleaning up temporary files and directories.")
-
-    try:
-        os.remove(parse_file)
-        os.remove(dedup_file)
-        shutil.rmtree(root)
-    except OSError as e:
-        print("[-] %s - %s." % (e.filename, e.strerror))
-
 def sendmail(account, verify_file, recipient, sender):
 
     print("[+] Sending email with attachment.")
@@ -215,6 +205,16 @@ def archive(account, mailfromfolder, mailtofolder):
     for message in folder_messages:
         message.move(mailtofolder)
 
+def cleanup(parse_file, root, dedup_file, verify_file):
+    print("[+] Cleaning up temporary files and directories.")
+
+    try:
+        os.remove(parse_file)
+        os.remove(dedup_file)
+        os.remove(verify_file)
+        shutil.rmtree(root)
+    except OSError as e:
+        print("[-] %s - %s." % (e.filename, e.strerror))
 
 if __name__ == '__main__':
 
@@ -260,6 +260,6 @@ if __name__ == '__main__':
     parse(parse_file, root, pattern)
     dedup(parse_file, dedup_file)
     verify(dedup_file, verify_file, server_name, domain_name, user_name, password)
-    cleanup(parse_file, root, dedup_file)
     sendmail(account, verify_file, recipient, sender)
     archive(account, mailfromfolder, mailtofolder)
+    cleanup(parse_file, root, dedup_file, verify_file)
