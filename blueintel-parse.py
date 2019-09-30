@@ -9,10 +9,7 @@ in a temporary directory for processing. The CSV attachments are combined togeth
 then entries are deduplicated, and verified against LDAP for accuracy.
 
 Requires a local ./credentials.ini file, see credentials-example.ini.
-
 '''
-
-# Many Imports
 
 from O365 import MSGraphProtocol, Account, FileSystemTokenBackend, Message
 from pathlib import Path
@@ -27,7 +24,6 @@ from datetime import datetime
 from ldap3 import Server, Connection, ALL, NTLM, ALL_ATTRIBUTES, ALL_OPERATIONAL_ATTRIBUTES, AUTO_BIND_NO_TLS, SUBTREE
 from ldap3.core.exceptions import LDAPCursorError
 from pprint import pprint
-
 
 # Functions in order of operations
 
@@ -49,7 +45,6 @@ def pull(account, mailfolder, root):
                 if not os.path.exists(root):
                     os.makedirs(root)
                 attachment.save(location=root)
-
 
 def parse(parse_file, root, pattern):
     print("[+] Reformating the output and combining the CSV files")
@@ -94,7 +89,6 @@ def parse(parse_file, root, pattern):
                     row[2] = "*" * masked + slimstr + "*" * masked
                     csvwriter.writerow(row)
 
-
 def dedup(parse_file, dedup_file):
     print("[+] Deduplicating entries in the output CSV.")
 
@@ -107,7 +101,6 @@ def dedup(parse_file, dedup_file):
             outfile.write(line)
             lines_seen.add(line_list[1])
     outfile.close()
-
 
 def verify(dedup_file, verify_file, server_name, domain_name, user_name, password):
     print("[+] Verifying entries on the deduplicated CSV.")
@@ -150,7 +143,6 @@ def verify(dedup_file, verify_file, server_name, domain_name, user_name, passwor
             except LDAPCursorError:
                 continue
 
-
 def sendmail(account, verify_file, recipient, sender):
 
     print("[+] Sending email with attachment.")
@@ -177,7 +169,6 @@ def sendmail(account, verify_file, recipient, sender):
     m.body = body
     m.attachments.add(verify_file)
     m.send()
-
 
 def archive(account, mailfromfolder, mailtofolder):
     print("[+] Moving credparser emails to archive")
