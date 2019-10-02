@@ -31,7 +31,6 @@ def pull(account, mailfolder, root):
     print("[+] Pulling credparser emails from acopeland@celgene.com\credparser")
 
     root = os.path.join('.', root)
-
     mailbox = account.mailbox()
     mail_folder = mailbox.get_folder(folder_name=mailfolder)
     folder_messages = mail_folder.get_messages(download_attachments=True)
@@ -126,7 +125,8 @@ def verify(dedup_file, verify_file, server_name, domain_name, user_name, passwor
         search_account = line[1].split("@")[0]
 
         # Searching AD for the user in the current CSV file's line
-        search_filter = '(&(objectclass=person)(sAMAccountName=' + search_account + '))'
+        search_filter = '(&(objectclass=person)(sAMAccountName=' + search_account + ')' + \
+                        '(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
         conn.search('DC=celgene,DC=com'.format(domain_name), search_filter=search_filter,
                     attributes=[ALL_ATTRIBUTES, ALL_OPERATIONAL_ATTRIBUTES])
 
@@ -210,7 +210,13 @@ if __name__ == '__main__':
 
     # Authenticating to O365
     if not account.is_authenticated:
-        account.authenticate(scopes=scopes)
+        try:
+            account.authenticate(scopes=scopes)
+        except Exception as e:
+            e.args += (d,)
+            raise
+
+
 
     # Getting Active Directory Credentials
     server_name = parser.get('ldap', 'server_name')
